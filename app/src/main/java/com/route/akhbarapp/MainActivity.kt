@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.widget.ProgressBar
 import androidx.core.view.isVisible
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.tabs.TabLayout
 import com.route.akhbarapp.api.ApiManager
 import com.route.akhbarapp.model.NewsResponse
@@ -18,13 +19,21 @@ class MainActivity : AppCompatActivity() {
 
     lateinit var tabLayout:TabLayout
     lateinit var progressBar:ProgressBar
+    lateinit var recyclerView: RecyclerView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        initViews()
+        getNewsSources()
+    }
+
+    val adapter=NewsAdapter(null)
+    fun initViews(){
         tabLayout=findViewById(R.id.tab_layout)
         progressBar=findViewById(R.id.progress_bar)
-        getNewsSources()
+        recyclerView=findViewById(R.id.recycler_view)
+        recyclerView.adapter=adapter
     }
 
     private fun getNewsSources() {
@@ -67,10 +76,14 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 override fun onTabReselected(tab: TabLayout.Tab?) {
+                    val source=tab?.tag as SourcesItem
+                    getNewsBySource(source)
                 }
 
             }
         )
+        // for make fist source selected
+        tabLayout.getTabAt(0)?.select()
 
     }
 
@@ -85,6 +98,7 @@ class MainActivity : AppCompatActivity() {
                      response: Response<NewsResponse>
                  ) {
                      progressBar.isVisible=false
+                     adapter.changeData(response.body()?.articles)
                  }
 
                  override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
