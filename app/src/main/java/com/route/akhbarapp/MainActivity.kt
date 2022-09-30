@@ -7,6 +7,7 @@ import android.widget.ProgressBar
 import androidx.core.view.isVisible
 import com.google.android.material.tabs.TabLayout
 import com.route.akhbarapp.api.ApiManager
+import com.route.akhbarapp.model.NewsResponse
 import com.route.akhbarapp.model.SourcesItem
 import com.route.akhbarapp.model.SourcesResponse
 import retrofit2.Call
@@ -46,11 +47,50 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun addSourcesToTabLayout(sources:List<SourcesItem?>?) {
-        sources?.forEach {
+        sources?.forEach {source->
             val tab=tabLayout.newTab()
-            tab.setText(it?.name)
+            tab.setText(source?.name)
+            tab.tag=source
             tabLayout.addTab(tab)
         }
+        //when click on tab view news
+        tabLayout.addOnTabSelectedListener(
+            object:TabLayout.OnTabSelectedListener{
+                override fun onTabSelected(tab: TabLayout.Tab?) {
+                 //for get source
+                  //  val source=sources?.get(tab?.position?:0)
+                    val source=tab?.tag as SourcesItem
+                    getNewsBySource(source)
+                }
 
+                override fun onTabUnselected(tab: TabLayout.Tab?) {
+                }
+
+                override fun onTabReselected(tab: TabLayout.Tab?) {
+                }
+
+            }
+        )
+
+    }
+
+     fun getNewsBySource(source: SourcesItem) {
+         progressBar.isVisible=true
+         ApiManager.getApis()
+             .getNews(Constants.apiKey,source.id?:"")
+             .enqueue(object :Callback<NewsResponse>{
+
+                 override fun onResponse(
+                     call: Call<NewsResponse>,
+                     response: Response<NewsResponse>
+                 ) {
+                     progressBar.isVisible=false
+                 }
+
+                 override fun onFailure(call: Call<NewsResponse>, t: Throwable) {
+                     progressBar.isVisible=false
+                 }
+
+             })
     }
 }

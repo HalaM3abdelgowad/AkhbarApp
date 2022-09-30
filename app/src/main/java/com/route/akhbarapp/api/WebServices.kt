@@ -1,5 +1,6 @@
 package com.route.akhbarapp.api
 
+import com.route.akhbarapp.model.NewsResponse
 import com.route.akhbarapp.model.SourcesResponse
 import retrofit2.Call
 import retrofit2.http.GET
@@ -12,4 +13,9 @@ interface WebServices {
         @Query("apiKey"/*the same name in post man*/)apiKey:String
     ):Call<SourcesResponse>
 
+    @GET("v2/everything")
+    fun getNews(
+        @Query("apiKey") apiKey:String,
+        @Query("sources") sources:String
+    ):Call<NewsResponse>
 }
